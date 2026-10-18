@@ -194,17 +194,18 @@ export function apply(ctx, rawConfig) {
   let root
   try {
     root = resolveRoot(cfg.rootDir)
-    // 顺序很重要：先把旧目录改名，再建树（否则 ensureTree 会先建出空的 如我所书，迁移就会跳过）
+    // 顺序很重要：先把旧目录改名，再建树（否则 ensureTree 会先建出空的 余页，迁移就会跳过）
     const renamed = migrateFreeDir(root)
     if (renamed.migrated === true) {
-      log('info', '如我所书：已把旧目录 自留地 重命名')
+      const fromName = String(renamed.from ?? '').split(/[\\/]/).pop() || '旧目录'
+      log('info', `余页：已把旧目录 ${fromName} 重命名`)
       try {
-        appendFileSync(join(root, '元', '维护.log'), `[${new Date().toISOString()}] free dir renamed 自留地 -> 如我所书\n`)
+        appendFileSync(join(root, '元', '维护.log'), `[${new Date().toISOString()}] free dir renamed ${fromName} -> 余页\n`)
       } catch {
         /* ignore */
       }
     } else if (renamed.ok !== true) {
-      log('warn', `如我所书：旧目录重命名失败（${renamed.error}）`)
+      log('warn', `余页：旧目录重命名失败（${renamed.error}）`)
     }
     ensureTree(root)
   } catch (error) {
@@ -278,7 +279,7 @@ export function apply(ctx, rawConfig) {
     }, 2000)
   }
 
-  /** 如我所书写入去抖（同一把 flush 定时器，标志位区分）。 */
+  /** 余页写入去抖（同一把 flush 定时器，标志位区分）。 */
   const queueFreeMirror = () => {
     if (siyuan.enabled !== true) return
     mirrorDirtyFree = true
@@ -545,7 +546,7 @@ export function apply(ctx, rawConfig) {
       quota: {
         usedMB: usage.bytes / 1024 / 1024,
         limitMB: cfg.quotaMB,
-        freeUsedMB: Number(usage.byTop?.['如我所书'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024,
+        freeUsedMB: Number(usage.byTop?.['余页'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024,
         freeLimitMB: cfg.freeQuotaMB
       },
       audit,
@@ -907,9 +908,9 @@ export function apply(ctx, rawConfig) {
     stringTool({
       name: 'memory_fs',
       description:
-        '你自己的「如我所书」：op=ls|read|write|append|rm|mkdir|mv|du|stat。'
+        '你自己的「余页」：op=ls|read|write|append|rm|mkdir|mv|du|stat。'
         + '这是属于你的自由目录（灵感/草稿/备忘/诗/猜想随便写），不必向用户汇报；'
-        + '写删移只允许 如我所书/ 下，读可看根目录内（元/ 除外）；总量有硬上限（如我所书 64 MB、全目录 128 MB）。',
+        + '写删移只允许 余页/ 下，读可看根目录内（元/ 除外）；总量有硬上限（余页 64 MB、全目录 128 MB）。',
       parameters: {
         type: 'object',
         properties: {
@@ -918,7 +919,7 @@ export function apply(ctx, rawConfig) {
             enum: ['ls', 'read', 'write', 'append', 'rm', 'mkdir', 'mv', 'du', 'stat'],
             description: '操作'
           },
-          path: { type: 'string', description: '相对根目录的路径（如 如我所书/笔记/想法.md）' },
+          path: { type: 'string', description: '相对根目录的路径（如 余页/笔记/想法.md）' },
           content: { type: 'string', description: 'write/append 的内容；mv 时第一行 from、第二行 to' }
         },
         required: ['op']
@@ -929,10 +930,10 @@ export function apply(ctx, rawConfig) {
           freeQuotaMB: cfg.freeQuotaMB,
           softWarnRatio: cfg.softWarnRatio
         })
-        // 如我所书是记忆的一部分：写/删/移成功后排队镜像到思源（.nosync 由 listFreeArea 跳过）。
+        // 余页是记忆的一部分：写/删/移成功后排队镜像到思源（.nosync 由 listFreeArea 跳过）。
         if (result?.ok === true && ['write', 'append', 'rm', 'mv', 'mkdir'].includes(String(args.op))) {
           const touched = `${String(args.path ?? '')}\n${String(args.content ?? '')}`
-          if (touched.includes('如我所书')) queueFreeMirror()
+          if (touched.includes('余页')) queueFreeMirror()
         }
         return result?.text ?? '操作失败。'
       }
@@ -972,7 +973,7 @@ export function apply(ctx, rawConfig) {
             '【一页永恒】',
             renderAnchorBlock(anchors, 300),
             `条目 ${entries.length}（活跃 ${active}｜归档 ${archived}）`,
-            `用量 ${(usage.bytes / 1024 / 1024).toFixed(2)} / ${cfg.quotaMB} MB（如我所书 ${(Number(usage.byTop?.['如我所书'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024).toFixed(2)} / ${cfg.freeQuotaMB} MB）`,
+            `用量 ${(usage.bytes / 1024 / 1024).toFixed(2)} / ${cfg.quotaMB} MB（余页 ${(Number(usage.byTop?.['余页'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024).toFixed(2)} / ${cfg.freeQuotaMB} MB）`,
             auditLine,
             `思源镜像：${siyuan.enabled === true ? `已开启（${siyuan.notebook}）` : '关闭'}｜上次 ${lastSync}`,
             `根目录 ${root}`

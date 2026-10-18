@@ -99,7 +99,7 @@ test('ensureTree：建目录树 + 缺省 指南.md + 四问锚点，重复调用
   assert.deepEqual(first.errors, []);
   assert.equal(first.root, path.resolve(root));
 
-  for (const dir of ['锚', '日', '月', '年', '梦', '档', '元', '如我所书', '如我所书/笔记', '如我所书/草稿', '如我所书/.nosync']) {
+  for (const dir of ['锚', '日', '月', '年', '梦', '档', '元', '余页', '余页/笔记', '余页/草稿', '余页/.nosync']) {
     assert.ok(fs.existsSync(path.join(root, ...dir.split('/'))), `应创建 ${dir}`);
   }
   const guide = path.join(root, '指南.md');
@@ -317,14 +317,14 @@ test('walkFiles：posix rel、跳过 元/ 日志与索引、坏根目录返回�
   atomicWrite(path.join(root, '元', '思源镜像.json'), '{}');
   atomicWrite(path.join(root, '元', '日志.jsonl'), '{"op":"write"}\n');
   atomicWrite(path.join(root, '元', '索引.jsonl'), '{"t":"entry"}\n');
-  atomicWrite(path.join(root, '如我所书', '笔记', 'a.md'), '灵感');
+  atomicWrite(path.join(root, '余页', '笔记', 'a.md'), '灵感');
 
   const files = walkFiles(root);
   const rels = files.map((f) => f.rel);
   assert.ok(rels.includes('指南.md'));
   assert.ok(rels.includes('日/2026/10/2026-10-18.md'));
   assert.ok(rels.includes('元/思源镜像.json'));
-  assert.ok(rels.includes('如我所书/笔记/a.md'));
+  assert.ok(rels.includes('余页/笔记/a.md'));
   assert.ok(!rels.some((rel) => rel.includes('日志')));
   assert.ok(!rels.some((rel) => rel.includes('索引')));
   assert.ok(rels.every((rel) => !rel.includes('\\')), 'rel 必须是 posix 分隔符');
@@ -341,33 +341,33 @@ test('quotaUsage：按顶层目录聚合字节（元/ 日志也计入），未�
   ensureTree(root);
   const dayFile = path.join(root, '日', '2026', '10', '2026-10-18.md');
   atomicWrite(dayFile, '# 日档\n');
-  atomicWrite(path.join(root, '如我所书', '笔记', 'a.md'), '12345');
+  atomicWrite(path.join(root, '余页', '笔记', 'a.md'), '12345');
   atomicWrite(path.join(root, '元', '日志.jsonl'), 'x'.repeat(10));
   atomicWrite(path.join(root, '元', '索引.jsonl'), 'y'.repeat(20));
   atomicWrite(path.join(root, '杂', 'x.txt'), 'z'.repeat(7));
 
   const quota = quotaUsage(root);
-  assert.deepEqual(Object.keys(quota.byTop), ['日', '月', '年', '锚', '梦', '档', '如我所书', '元', '其它']);
+  assert.deepEqual(Object.keys(quota.byTop), ['日', '月', '年', '锚', '梦', '档', '余页', '元', '其它']);
   assert.equal(quota.byTop.日, fs.statSync(dayFile).size);
-  // ensureTree 会在 如我所书/ 里留一张「关于这里.md」（首建一次），所以是 5 + 欢迎页大小
-  assert.equal(quota.byTop.如我所书, 5 + fs.statSync(path.join(root, '如我所书', '关于这里.md')).size);
-  // 元/ 里除了两篇日志，还有首建标记 .如我所书已初始化
-  assert.equal(quota.byTop.元, 30 + fs.statSync(path.join(root, '元', '.如我所书已初始化')).size);
+  // ensureTree 会在 余页/ 里留一张「关于这里.md」（首建一次），所以是 5 + 欢迎页大小
+  assert.equal(quota.byTop.余页, 5 + fs.statSync(path.join(root, '余页', '关于这里.md')).size);
+  // 元/ 里除了两篇日志，还有首建标记 .余页已初始化
+  assert.equal(quota.byTop.元, 30 + fs.statSync(path.join(root, '元', '.余页已初始化')).size);
   // 根目录 指南.md + 这是什么.md + 杂/x.txt 都归 其它
   assert.equal(quota.byTop.其它, fs.statSync(path.join(root, '指南.md')).size + fs.statSync(path.join(root, '这是什么.md')).size + 7);
   assert.equal(quota.bytes, Object.values(quota.byTop).reduce((sum, n) => sum + n, 0));
-  assert.ok(quota.bytes >= quota.byTop.日 + quota.byTop.如我所书 + quota.byTop.元);
+  assert.ok(quota.bytes >= quota.byTop.日 + quota.byTop.余页 + quota.byTop.元);
 
   const empty = quotaUsage(path.join(root, '不存在'));
   assert.equal(empty.bytes, 0);
-  assert.deepEqual(empty.byTop, { 日: 0, 月: 0, 年: 0, 锚: 0, 梦: 0, 档: 0, 如我所书: 0, 元: 0, 其它: 0 });
+  assert.deepEqual(empty.byTop, { 日: 0, 月: 0, 年: 0, 锚: 0, 梦: 0, 档: 0, 余页: 0, 元: 0, 其它: 0 });
 });
 
-test('migrateFreeDir：旧 自留地 → 如我所书，且不覆盖已存在的新目录', (t) => {
+test('migrateFreeDir：旧 自留地 → 余页，且不覆盖已存在的新目录', (t) => {
   const root = tempRoot(t);
   ensureTree(root);
-  // 删掉新建的 如我所书，造一个旧 自留地
-  fs.rmSync(path.join(root, '如我所书'), { recursive: true, force: true });
+  // 删掉新建的 余页，造一个旧 自留地
+  fs.rmSync(path.join(root, '余页'), { recursive: true, force: true });
   fs.mkdirSync(path.join(root, '自留地', '笔记'), { recursive: true });
   fs.writeFileSync(path.join(root, '自留地', '笔记', '旧.md'), '# 旧\n内容', 'utf8');
 
@@ -375,7 +375,7 @@ test('migrateFreeDir：旧 自留地 → 如我所书，且不覆盖已存在的
   assert.equal(renamed.ok, true);
   assert.equal(renamed.migrated, true);
   assert.equal(fs.existsSync(path.join(root, '自留地')), false);
-  assert.equal(fs.readFileSync(path.join(root, '如我所书', '笔记', '旧.md'), 'utf8').includes('旧'), true);
+  assert.equal(fs.readFileSync(path.join(root, '余页', '笔记', '旧.md'), 'utf8').includes('旧'), true);
 
   // 再跑一次：已是新名，不迁移
   const again = migrateFreeDir(root);
@@ -385,5 +385,26 @@ test('migrateFreeDir：旧 自留地 → 如我所书，且不覆盖已存在的
   fs.writeFileSync(path.join(root, '自留地', 'x.md'), 'x', 'utf8');
   const kept = migrateFreeDir(root);
   assert.equal(kept.migrated, false);
-  assert.equal(fs.existsSync(path.join(root, '如我所书', '笔记', '旧.md')), true);
+  assert.equal(fs.existsSync(path.join(root, '余页', '笔记', '旧.md')), true);
+});
+
+test('migrateFreeDir：如我所书 → 余页，首建标记同步改名', (t) => {
+  const root = tempRoot(t);
+  ensureTree(root);
+  fs.rmSync(path.join(root, '余页'), { recursive: true, force: true });
+  fs.mkdirSync(path.join(root, '如我所书', '草稿'), { recursive: true });
+  fs.writeFileSync(path.join(root, '如我所书', '草稿', 'a.md'), 'A', 'utf8');
+  fs.writeFileSync(path.join(root, '元', '.如我所书已初始化'), '1', 'utf8');
+
+  const renamed = migrateFreeDir(root);
+  assert.equal(renamed.migrated, true);
+  assert.equal(fs.existsSync(path.join(root, '如我所书')), false);
+  assert.equal(fs.existsSync(path.join(root, '余页', '草稿', 'a.md')), true);
+  assert.equal(fs.existsSync(path.join(root, '元', '.余页已初始化')), true);
+  assert.equal(fs.existsSync(path.join(root, '元', '.如我所书已初始化')), false);
+
+  // 重新建树：标记已存在，不应再生成欢迎页
+  fs.rmSync(path.join(root, '余页', '关于这里.md'), { force: true });
+  ensureTree(root);
+  assert.equal(fs.existsSync(path.join(root, '余页', '关于这里.md')), false);
 });

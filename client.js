@@ -126,7 +126,7 @@ window.__ModuleLoader__.load({
             'div',
             { style: pre },
             `条目 ${d.entries?.total ?? 0}（活跃 ${d.entries?.active ?? 0}｜归档 ${d.entries?.archived ?? 0}）\n` +
-              `配额 ${(quota.usedMB ?? 0).toFixed(2)} / ${quota.limitMB ?? 0} MB（如我所书 ${(quota.freeUsedMB ?? 0).toFixed(2)} / ${quota.freeLimitMB ?? 0} MB）\n` +
+              `配额 ${(quota.usedMB ?? 0).toFixed(2)} / ${quota.limitMB ?? 0} MB（余页 ${(quota.freeUsedMB ?? 0).toFixed(2)} / ${quota.freeLimitMB ?? 0} MB）\n` +
               `注入利用率 ${(audit.total ?? 0) === 0 || audit.rate === null || audit.rate === undefined ? '暂无样本' : `${Math.round(audit.rate * 100)}%（${audit.used}/${audit.total}）`}｜命中额度 ${audit.effectiveTopK ?? '—'}\n` +
               `思源镜像 ${mirror.enabled ? '已开启' : '关闭'}｜${mirror.notebook ?? '—'}｜上次 ${mirror.lastSync ?? '尚未同步'}\n` +
               `上次夜梦：${d.dream?.lastDreamAt ?? '今天还没整理'}｜每日任务：${d.dream?.scheduled ? '已排程' : '未排程'}`

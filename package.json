@@ -1,9 +1,9 @@
 {
   "name": "dsh-cyrene-memory",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "type": "module",
-  "description": "一页永恒：昔涟的长期记忆（四问锚点 + 日月年 + 艾宾浩斯 + 比例调度 + 夜梦 + 思源镜像 + 如我所书）",
+  "description": "一页永恒：昔涟的长期记忆（四问锚点 + 日月年 + 艾宾浩斯 + 比例调度 + 夜梦 + 思源镜像 + 余页）",
   "keywords": [
     "deepseek-harness",
     "dsh",

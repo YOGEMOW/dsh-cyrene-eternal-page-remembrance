@@ -100,7 +100,7 @@ export function listDays(root)           // → ['YYYY-MM-DD'] 升序
 export function readAnchor(root, which)  // which: self|user|origin|goal → { meta, content }
 export function writeAnchor(root, which, content, meta)
 export function walkFiles(root)          // → [{ rel, bytes, mtime }]（跳过 元/ 下的日志与索引）
-export function quotaUsage(root)         // → { bytes, byTop: {日,月,年,锚,梦,档,如我所书,元,其它} }
+export function quotaUsage(root)         // → { bytes, byTop: {日,月,年,锚,梦,档,余页,元,其它} }
 export function safeRelPath(root, rel)   // 越界 → null；否则绝对路径
 ```
 

@@ -117,15 +117,15 @@ test('检索 / 归档 / 真忘', () => {
   }
 })
 
-test('如我所书文件操作 + 配额统计', () => {
+test('余页文件操作 + 配额统计', () => {
   const root = tmpRoot()
   try {
     ensureTree(root)
-    const w = fsOp(root, 'write', '如我所书/笔记/想法.md', '# 想法\n随便写', { quotaMB: 128 })
+    const w = fsOp(root, 'write', '余页/笔记/想法.md', '# 想法\n随便写', { quotaMB: 128 })
     assert.equal(w.ok, true)
-    const ls = fsOp(root, 'ls', '如我所书/笔记')
+    const ls = fsOp(root, 'ls', '余页/笔记')
     assert.match(ls.text, /想法\.md/)
-    const read = fsOp(root, 'read', '如我所书/笔记/想法.md')
+    const read = fsOp(root, 'read', '余页/笔记/想法.md')
     assert.match(read.text, /随便写/)
     const escape = fsOp(root, 'read', '../outside.md')
     assert.equal(escape.ok, false)

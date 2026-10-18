@@ -12,7 +12,7 @@
         hitTopK: 2
         recallBudget: 1000
         quotaMB: 128
-        freeQuotaMB: 64                  # 如我所书（AI 自由写入区）子配额
+        freeQuotaMB: 64                  # 余页（AI 自由写入区）子配额
         deductConfirmed: false           # true 时「用户明确陈述」才写 user 类记忆
         siyuan:
           enabled: true
