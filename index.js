@@ -13,7 +13,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { appendFileSync, existsSync, statSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { resolveConfig } from './lib/config.js'
 import {
@@ -302,6 +302,32 @@ export function apply(ctx, rawConfig) {
     }
   }
 
+  /** 对账最近几天的梦志：镜像正文归一（去掉重复标题）变化时会整篇重建。 */
+  const reconcileJournals = async () => {
+    if (siyuan.enabled !== true) return
+    try {
+      const dir = join(root, '梦')
+      if (!existsSync(dir)) return
+      const names = readdirSync(dir)
+        .filter((name) => /^\d{4}-\d{2}-\d{2}\.md$/.test(name))
+        .sort()
+        .slice(-7)
+      for (const name of names) {
+        const day = name.replace(/\.md$/, '')
+        const text = readTextSafe(join(dir, name))
+        if (text.trim() === '') continue
+        try {
+          const result = await syncJournal(siyuan, root, day, text)
+          if (result?.rebuilt === true) metaLog('思源镜像.log', `journal resync day=${day} ok=${result.ok === true}`)
+        } catch (error) {
+          metaLog('思源镜像.log', `journal resync error day=${day} ${error instanceof Error ? error.message : String(error)}`)
+        }
+      }
+    } catch (error) {
+      metaLog('思源镜像.log', `journal resync failed ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+
   /** 确保某个会话有每日夜梦任务（幂等；失败只记日志）。 */
   const ensureDreamSchedule = async (sessionId) => {
     if (cfg.dream.enabled !== true) return
@@ -402,6 +428,7 @@ export function apply(ctx, rawConfig) {
         mirrorDirtyFree = true
         mirrorDirtyAnchors = true
         await flushMirror()
+        await reconcileJournals()
       }
       if (cfg.backup.enabled === true) {
         const today = dreamDay()
@@ -668,6 +695,7 @@ export function apply(ctx, rawConfig) {
           mirrorDirtyAnchors = true
           mirrorDirtyFree = true
           await flushMirror()
+          await reconcileJournals()
           return send(200, { ok: true, message: '已同步到思源。' })
         }
         if (action === 'backup') {
@@ -1043,6 +1071,7 @@ export function apply(ctx, rawConfig) {
           mirrorDirtyAnchors = true
           mirrorDirtyFree = true
           await flushMirror()
+          await reconcileJournals()
           const state = loadMirrorState(root)
           return {
             kind: 'success',
@@ -1393,6 +1422,7 @@ export function apply(ctx, rawConfig) {
     mirrorDirtyAnchors = true
     mirrorDirtyFree = true
     void flushMirror()
+    void reconcileJournals()
     void runMaintenance('startup')
     if (dreamState.lastCyreneSessionId !== '') void ensureDreamSchedule(dreamState.lastCyreneSessionId)
     // 给启动前就已存在的活 agent 补装恒定提示词（agent/created 不会为它们补发）

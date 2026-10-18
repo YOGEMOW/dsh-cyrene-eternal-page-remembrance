@@ -83,3 +83,20 @@ test('梦志落盘 + 日档 dreamed 标记', () => {
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+test('梦志落盘：正文自带的标题会被去掉，只保留文件标题', () => {
+  const root = tmpRoot()
+  try {
+    ensureTree(root)
+    const now = Date.now()
+    const day = dayOf(now)
+    const w = writeDreamJournal(root, `# ${day} 梦志\n\n统计：新增 5 条。`, now)
+    assert.equal(w.ok, true)
+    const text = readFileSync(join(root, '梦', `${day}.md`), 'utf8')
+    assert.equal((text.match(/^# /gm) ?? []).length, 1, '只应有一个标题行')
+    assert.match(text, /统计：新增 5 条/)
+    assert.equal(text.includes('梦志'), false, '模型自带的标题应被去掉')
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})

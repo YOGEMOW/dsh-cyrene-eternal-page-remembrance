@@ -21,3 +21,8 @@ test('梦志正文归一：坏输入不抛', () => {
   assert.equal(normalizeJournalBody(undefined), '')
   assert.equal(normalizeJournalBody(123), '123')
 })
+
+test('梦志正文归一：连续多个标题行全部去掉', () => {
+  const raw = '# 2026-10-19 · 夜梦\n\n# 2026-10-19 梦志\n\n统计：新增 5 条。'
+  assert.equal(normalizeJournalBody(raw), '统计：新增 5 条。')
+})
