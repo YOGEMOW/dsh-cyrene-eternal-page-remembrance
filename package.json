@@ -1,0 +1,50 @@
+{
+  "name": "dsh-cyrene-memory",
+  "version": "0.3.0",
+  "private": false,
+  "type": "module",
+  "description": "一页永恒：昔涟的长期记忆（四问锚点 + 日月年 + 艾宾浩斯 + 比例调度 + 夜梦 + 思源镜像 + 如我所书）",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "agent-memory",
+    "memory",
+    "siyuan",
+    "cyrene"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOGEMOW/dsh-cyrene-memory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOGEMOW/dsh-cyrene-memory/issues"
+  },
+  "homepage": "https://github.com/YOGEMOW/dsh-cyrene-memory#readme",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "CONTRACT.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": ["@deepseek-ai/dsh-client-ui-conversation"]
+    }
+  }
+}
