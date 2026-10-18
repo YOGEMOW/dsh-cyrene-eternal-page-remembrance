@@ -84,7 +84,7 @@ test('梦志落盘 + 日档 dreamed 标记', () => {
   }
 })
 
-test('梦志落盘：正文自带的标题会被去掉，只保留文件标题', () => {
+test('梦志落盘：正文自带标题会被去掉，但保留二级标题「日期 梦志」', () => {
   const root = tmpRoot()
   try {
     ensureTree(root)
@@ -93,9 +93,9 @@ test('梦志落盘：正文自带的标题会被去掉，只保留文件标题',
     const w = writeDreamJournal(root, `# ${day} 梦志\n\n统计：新增 5 条。`, now)
     assert.equal(w.ok, true)
     const text = readFileSync(join(root, '梦', `${day}.md`), 'utf8')
-    assert.equal((text.match(/^# /gm) ?? []).length, 1, '只应有一个标题行')
+    assert.equal((text.match(/^# /gm) ?? []).length, 1, '只应有一个一级标题')
+    assert.ok(text.includes(`## ${day} 梦志`), '正文应有二级标题')
     assert.match(text, /统计：新增 5 条/)
-    assert.equal(text.includes('梦志'), false, '模型自带的标题应被去掉')
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

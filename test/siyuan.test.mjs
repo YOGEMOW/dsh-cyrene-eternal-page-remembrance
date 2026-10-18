@@ -26,3 +26,8 @@ test('梦志正文归一：连续多个标题行全部去掉', () => {
   const raw = '# 2026-10-19 · 夜梦\n\n# 2026-10-19 梦志\n\n统计：新增 5 条。'
   assert.equal(normalizeJournalBody(raw), '统计：新增 5 条。')
 })
+
+test('梦志正文归一：保留二级标题「日期 梦志」，只去掉一级标题', () => {
+  const raw = '# 2026-10-19 · 夜梦\n\n## 2026-10-19 梦志\n\n统计：新增 5 条。'
+  assert.equal(normalizeJournalBody(raw), '## 2026-10-19 梦志\n\n统计：新增 5 条。')
+})
