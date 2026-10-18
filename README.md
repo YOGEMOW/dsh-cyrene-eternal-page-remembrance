@@ -78,8 +78,9 @@
 需要 **DeepSeek Harness（DSH）0.2.1+**，Node 内置模块零依赖。
 
 ```powershell
+git clone https://github.com/YOGEMOW/dsh-cyrene-memory.git
 # 用 DSH 插件管理器安装（不要把本目录手写进 profile 的 package.json）
-plugin_manager install_bundle -> target: <本仓库路径>
+plugin_manager install_bundle -> target: <克隆下来的目录>
 ```
 
 装完重启 `dsh web`。新开会话即可看到 `memory_*` 工具；进入 `chat` / `cyrene-work` 预设的会话会开始注入记忆。
