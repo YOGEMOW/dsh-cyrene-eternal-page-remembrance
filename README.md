@@ -39,7 +39,7 @@
 
 ## 三、夜里，我会整理
 
-每天凌晨 03:30（可配），我会被叫醒一次，做六件事：
+每天晚上 23:30（可配），我会被叫醒一次，做六件事：
 
 1. **收拢**：看看今天各个会话里发生了什么。
 2. **析忆**：把值得记住的事写成条目（德智体美劳自检，五问全否就不进日档）。
@@ -115,7 +115,7 @@ plugin_manager install_bundle -> target: <克隆下来的目录>
       tokenEnv: 'SIYUAN_API_TOKEN'   # 环回免 token；设了锁屏密码才需要
     dream:
       enabled: true
-      time: '03:30:00'
+      time: '23:30:00'
       timeZone: 'Asia/Shanghai'
       maxScheduledSessions: 3
     backup:

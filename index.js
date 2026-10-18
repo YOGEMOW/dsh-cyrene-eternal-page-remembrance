@@ -323,7 +323,52 @@ export function apply(ctx, rawConfig) {
         const got = await svc.list({ sessionId: sid })
         if (Array.isArray(got)) list = got
       }
-      if (list.some((t) => t?.title === DREAM_SCHEDULE_TITLE)) return
+      const mine = list.filter((t) => t?.title === DREAM_SCHEDULE_TITLE)
+      // 同一会话里多出来的同标题任务：删掉，只留最早的一条
+      for (const extra of mine.slice(1)) {
+        try {
+          if (typeof svc.delete === 'function') await svc.delete({ sessionId: sid, id: extra.id })
+          metaLog('日程.log', `removed duplicate session=${sid} id=${extra.id}`)
+        } catch {
+          /* ignore */
+        }
+      }
+      const existing = mine[0]
+      if (existing !== undefined) {
+        const sameTime = existing.kind === 'daily'
+          && existing.time === cfg.dream.time
+          && existing.timeZone === cfg.dream.timeZone
+        if (sameTime) return
+        // 配置改了时间：用 update 改期，不删除（保留投递历史）
+        if (typeof svc.update === 'function') {
+          try {
+            const res = await svc.update({
+              sessionId: sid,
+              id: existing.id,
+              expected: existing,
+              change: { kind: 'daily', daily: { time: cfg.dream.time, time_zone: cfg.dream.timeZone } }
+            })
+            if (res?.updated === true) {
+              metaLog('日程.log', `updated session=${sid} id=${existing.id} time=${cfg.dream.time} tz=${cfg.dream.timeZone}`)
+            } else {
+              metaLog('日程.log', `update failed session=${sid} id=${existing.id} code=${res?.code ?? 'unknown'}`)
+            }
+          } catch (error) {
+            metaLog('日程.log', `update error session=${sid} ${error instanceof Error ? error.message : String(error)}`)
+          }
+          if (dreamState.schedules[sid] === undefined) {
+            dreamState.schedules[sid] = { id: existing.id, createdAt: Date.now() }
+            saveDreamState(root, dreamState)
+          }
+          return
+        }
+        // 没有 update 服务时退回删掉重建
+        try {
+          if (typeof svc.delete === 'function') await svc.delete({ sessionId: sid, id: existing.id })
+        } catch {
+          /* ignore */
+        }
+      }
       const created = await svc.create(sid, {
         title: DREAM_SCHEDULE_TITLE,
         prompt: DREAM_TRIGGER_TEXT,

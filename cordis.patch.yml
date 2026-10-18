@@ -24,7 +24,7 @@
           createNotebook: false
         dream:
           enabled: true
-          time: '03:30:00'               # 每天凌晨唤起会话做六阶段整理
+          time: '23:30:00'               # 每天晚上 23:30 唤起会话做六阶段整理
           timeZone: 'Asia/Shanghai'
           maxScheduledSessions: 3
         backup:
