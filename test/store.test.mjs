@@ -408,3 +408,19 @@ test('migrateFreeDir：如我所书 → 余页，首建标记同步改名', (t) 
   ensureTree(root);
   assert.equal(fs.existsSync(path.join(root, '余页', '关于这里.md')), false);
 });
+
+test('ensureTree：旧版种子文案（如我所书）自动刷新为余页', (t) => {
+  const root = tempRoot(t);
+  ensureTree(root);
+  // 模拟旧版遗留文件：目录已是余页，但文案还是旧的
+  fs.writeFileSync(path.join(root, '余页', '关于这里.md'), '# 关于这里\n\n这里是「如我所书」——你自己的自由区。\n', 'utf8');
+  fs.writeFileSync(path.join(root, '这是什么.md'), '# 这是什么\n\n| 如我所书（AI 自由区） | `如我所书/` |\n', 'utf8');
+
+  ensureTree(root);
+  const welcome = fs.readFileSync(path.join(root, '余页', '关于这里.md'), 'utf8');
+  const note = fs.readFileSync(path.join(root, '这是什么.md'), 'utf8');
+  assert.equal(welcome.includes('如我所书'), false);
+  assert.ok(welcome.includes('余页'));
+  assert.equal(note.includes('如我所书'), false);
+  assert.ok(note.includes('余页'));
+});

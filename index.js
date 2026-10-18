@@ -546,7 +546,7 @@ export function apply(ctx, rawConfig) {
       quota: {
         usedMB: usage.bytes / 1024 / 1024,
         limitMB: cfg.quotaMB,
-        freeUsedMB: Number(usage.byTop?.['余页'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024,
+        freeUsedMB: Number(usage.byTop?.['余页'] ?? usage.byTop?.['如我所书'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024,
         freeLimitMB: cfg.freeQuotaMB
       },
       audit,
@@ -973,7 +973,7 @@ export function apply(ctx, rawConfig) {
             '【一页永恒】',
             renderAnchorBlock(anchors, 300),
             `条目 ${entries.length}（活跃 ${active}｜归档 ${archived}）`,
-            `用量 ${(usage.bytes / 1024 / 1024).toFixed(2)} / ${cfg.quotaMB} MB（余页 ${(Number(usage.byTop?.['余页'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024).toFixed(2)} / ${cfg.freeQuotaMB} MB）`,
+            `用量 ${(usage.bytes / 1024 / 1024).toFixed(2)} / ${cfg.quotaMB} MB（余页 ${(Number(usage.byTop?.['余页'] ?? usage.byTop?.['如我所书'] ?? usage.byTop?.['自留地'] ?? 0) / 1024 / 1024).toFixed(2)} / ${cfg.freeQuotaMB} MB）`,
             auditLine,
             `思源镜像：${siyuan.enabled === true ? `已开启（${siyuan.notebook}）` : '关闭'}｜上次 ${lastSync}`,
             `根目录 ${root}`
