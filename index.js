@@ -375,8 +375,13 @@ export function apply(ctx, rawConfig) {
       }
       const existing = mine[0]
       if (existing !== undefined) {
+        // DSH 会把 time 规范成 HH:mm:ss.SSS，配置里通常写 HH:mm:ss；比较时归一化成秒。
+        const clockSeconds = (value) => {
+          const m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(String(value ?? ''))
+          return m === null ? null : Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3] ?? 0)
+        }
         const sameTime = existing.kind === 'daily'
-          && existing.time === cfg.dream.time
+          && clockSeconds(existing.time) === clockSeconds(cfg.dream.time)
           && existing.timeZone === cfg.dream.timeZone
         if (sameTime) return
         // 配置改了时间：用 update 改期，不删除（保留投递历史）
@@ -390,6 +395,8 @@ export function apply(ctx, rawConfig) {
             })
             if (res?.updated === true) {
               metaLog('日程.log', `updated session=${sid} id=${existing.id} time=${cfg.dream.time} tz=${cfg.dream.timeZone}`)
+            } else if (res?.record !== undefined && res?.code === undefined) {
+              metaLog('日程.log', `unchanged session=${sid} id=${existing.id} time=${cfg.dream.time}`)
             } else {
               metaLog('日程.log', `update failed session=${sid} id=${existing.id} code=${res?.code ?? 'unknown'}`)
             }
@@ -487,7 +494,7 @@ export function apply(ctx, rawConfig) {
   const handleDreamTrigger = (decision, messages, markerMsg, sessionId) => {
     const markerText = textOf(markerMsg)
     const force = /force/i.test(markerText)
-    if (dreamedToday(dreamState) === true && force !== true) {
+    if (dreamedToday(dreamState, Date.now(), { time: cfg.dream.time, timeZone: cfg.dream.timeZone }) === true && force !== true) {
       metaLog('梦.log', `skip already-dreamed session=${sessionId}`)
       return { ...decision, messages: messages.filter((m) => m !== markerMsg) }
     }
@@ -550,7 +557,7 @@ export function apply(ctx, rawConfig) {
 
   /** 手动/面板触发一次夜梦（唤醒最近的昔涟会话）。 */
   const triggerDream = async (agent) => {
-    if (dreamedToday(dreamState) === true) return { ok: false, error: '今天已经整理过了（元/梦.json 记录在案）。' }
+    if (dreamedToday(dreamState, Date.now(), { time: cfg.dream.time, timeZone: cfg.dream.timeZone }) === true) return { ok: false, error: '今晚已经整理过了（元/梦.json 记录在案）。' }
     if (agent === undefined || agent === null || typeof agent.followup !== 'function') {
       return { ok: false, error: '没有可唤醒的会话；请先在昔涟聊天模式里说一句话。' }
     }
@@ -696,7 +703,7 @@ export function apply(ctx, rawConfig) {
         }
         return send(200, {
           preset,
-          dreamedToday: dreamedToday(dreamState),
+          dreamedToday: dreamedToday(dreamState, Date.now(), { time: cfg.dream.time, timeZone: cfg.dream.timeZone }),
           running: dreamState.running !== null,
           lastDreamAt: dreamState.lastDreamAt > 0 ? new Date(dreamState.lastDreamAt).toLocaleString() : ''
         })

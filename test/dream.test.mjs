@@ -12,6 +12,7 @@ import {
   acquireDreamLease,
   releaseDreamLease,
   dreamedToday,
+  lastDreamWindowStart,
   clearStaleLease,
   writeDreamJournal,
   markDayDreamed,
@@ -96,6 +97,35 @@ test('梦志落盘：正文自带标题会被去掉，但保留二级标题「�
     assert.equal((text.match(/^# /gm) ?? []).length, 1, '只应有一个一级标题')
     assert.ok(text.includes(`## ${day} 梦志`), '正文应有二级标题')
     assert.match(text, /统计：新增 5 条/)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('夜梦窗口：23:30 之前凌晨的补梦不算今晚，23:30 之后才算', () => {
+  const tz = 'Asia/Shanghai'
+  const now = Date.UTC(2026, 9, 19, 15, 32, 13) // 2026-10-19 23:32 +08
+  const start = lastDreamWindowStart(now, '23:30:00', tz)
+  assert.equal(start, Date.UTC(2026, 9, 19, 15, 30, 0))
+  // 当天 00:26 的补梦（10-19 00:26）早于今晚 23:30 窗口 → 应允许再跑
+  assert.equal(dreamedToday({ lastDreamAt: Date.UTC(2026, 9, 18, 16, 26, 36) }, now, { time: '23:30:00', timeZone: tz }), false)
+  // 今晚 23:30 之后跑过 → 跳过
+  assert.equal(dreamedToday({ lastDreamAt: Date.UTC(2026, 9, 19, 15, 30, 5) }, now, { time: '23:30:00', timeZone: tz }), true)
+})
+
+test('同一天第二次梦志：追加「补记」而不是覆盖', () => {
+  const root = tmpRoot()
+  try {
+    ensureTree(root)
+    const now = Date.UTC(2026, 9, 19, 15, 30, 0)
+    const first = writeDreamJournal(root, '第一次统计：新增 2 条。', now)
+    assert.equal(first.ok, true)
+    const second = writeDreamJournal(root, '第二次统计：新增 1 条。', now + 5 * 60_000)
+    assert.equal(second.ok, true)
+    const text = readFileSync(join(root, '梦', `${dayOf(now)}.md`), 'utf8')
+    assert.match(text, /第一次统计：新增 2 条/)
+    assert.match(text, /第二次统计：新增 1 条/)
+    assert.match(text, /补记/)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
