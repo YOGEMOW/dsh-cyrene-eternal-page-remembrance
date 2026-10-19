@@ -7,7 +7,7 @@
  * 设计要点：
  *  - 不注册全局 system prompt section（避免给所有会话加 token）；注入只走 agent/pre-step，
  *    且只对 injectPresets 里的预设会话生效。
- *  - 注入消息是独立 plugin 消息（source.kind='plugin:cyrene-memory'，v4 契约），
+ *  - 注入消息是独立 plugin 消息（source.kind='plugin:cyrene-eternal-page-remembrance'，v4 契约），
  *    不改写用户 prompt；首轮快照一次、之后按关键词命中、压缩后重注入。
  *  - 所有宿主调用与文件操作都 fail-open：任何异常只记日志，绝不打掉对话。
  */
@@ -20,6 +20,7 @@ import {
   resolveRoot,
   ensureTree,
   migrateFreeDir,
+  migrateRootDir,
   appendEntry,
   readTextSafe,
   dayFilePath,
@@ -55,7 +56,7 @@ import {
   logDream,
   dayOf as dreamDay
 } from './lib/dream.js'
-import { snapshotRoot } from './lib/backup.js'
+import { snapshotRoot, migrateSnapshotsDir } from './lib/backup.js'
 import { restoreFromSiYuan } from './lib/restore.js'
 import { MEMORY_SECTION_TEXT, MEMORY_VARIABLE_TEXT } from './lib/prompt.js'
 import {
@@ -69,12 +70,12 @@ import {
 } from './lib/audit.js'
 import { rollCalendars } from './lib/rolling.js'
 
-export const name = 'cyrene-memory'
+export const name = 'cyrene-eternal-page-remembrance'
 
 const KINDS = ['fact', 'event', 'decision', 'lesson', 'rule', 'goal', 'identity', 'style', 'topic', 'artifact']
 const AXES = ['德', '智', '体', '美', '劳']
 const QS = ['我', '你', '来', '去']
-const PLUGIN_KIND = 'plugin:cyrene-memory'
+const PLUGIN_KIND = 'plugin:cyrene-eternal-page-remembrance'
 
 /** 本地日期 YYYY-MM-DD。 */
 function dayOf(now) {
@@ -194,7 +195,20 @@ export function apply(ctx, rawConfig) {
   let root
   try {
     root = resolveRoot(cfg.rootDir)
-    // 顺序很重要：先把旧目录改名，再建树（否则 ensureTree 会先建出空的 余页，迁移就会跳过）
+    // 根目录改名：旧 <DSH_HOME>/cyrene-memory → cyrene-eternal-page-remembrance
+    // 只在没有自定义 rootDir 时迁移，避免动到用户自己指定的路径。
+    if (typeof cfg.rootDir !== 'string' || cfg.rootDir.trim() === '') {
+      const moved = migrateRootDir(root, { legacyNames: ['cyrene-memory'] })
+      if (moved.migrated === true) {
+        log('info', '记忆根目录：已把旧目录 cyrene-memory 重命名')
+      } else if (moved.ok !== true) {
+        log('warn', `记忆根目录：旧目录重命名失败（${moved.error}）`)
+      }
+      const snapMoved = migrateSnapshotsDir(root)
+      if (snapMoved.migrated === true) log('info', '快照目录：已把 cyrene-memory-snapshots 重命名')
+      else if (snapMoved.ok !== true) log('warn', `快照目录：重命名失败（${snapMoved.error}）`)
+    }
+    // 顺序很重要：先把余页旧目录改名，再建树（否则 ensureTree 会先建出空的 余页，迁移就会跳过）
     const renamed = migrateFreeDir(root)
     if (renamed.migrated === true) {
       const fromName = String(renamed.from ?? '').split(/[\\/]/).pop() || '旧目录'
@@ -652,7 +666,7 @@ export function apply(ctx, rawConfig) {
     req.on('error', () => resolve({}))
   })
 
-  /** /cyrene-memory/* HTTP 路由（设置面板用）。 */
+  /** /cyrene-eternal-page-remembrance/* HTTP 路由（设置面板用）。 */
   const handleHttp = async (req, res) => {
     const send = (code, obj) => {
       try {
@@ -666,8 +680,8 @@ export function apply(ctx, rawConfig) {
     }
     try {
       const url = new URL(String(req.url ?? '/'), 'http://127.0.0.1')
-      if (url.pathname === '/cyrene-memory/status' && req.method === 'GET') return send(200, buildStatus())
-      if (url.pathname === '/cyrene-memory/session' && req.method === 'GET') {
+      if (url.pathname === '/cyrene-eternal-page-remembrance/status' && req.method === 'GET') return send(200, buildStatus())
+      if (url.pathname === '/cyrene-eternal-page-remembrance/session' && req.method === 'GET') {
         // 会话头小徽标用：只对昔涟预设的活会话返回状态，其他会话返回 preset=''（前端隐藏）。
         const sessionId = String(url.searchParams.get('sessionId') ?? '')
         let preset = ''
@@ -687,7 +701,7 @@ export function apply(ctx, rawConfig) {
           lastDreamAt: dreamState.lastDreamAt > 0 ? new Date(dreamState.lastDreamAt).toLocaleString() : ''
         })
       }
-      if (url.pathname === '/cyrene-memory/action' && req.method === 'POST') {
+      if (url.pathname === '/cyrene-eternal-page-remembrance/action' && req.method === 'POST') {
         const body = await readJsonBody(req)
         const action = String(body?.action ?? '')
         if (action === 'sync') {
@@ -1238,7 +1252,7 @@ export function apply(ctx, rawConfig) {
       const disposers = promptInstalls.get(agentId) ?? {}
       if (disposers.section === undefined && typeof sp.section === 'function') {
         try {
-          disposers.section = sp.section({ name: 'cyrene-memory:guide', order: 130, text: MEMORY_SECTION_TEXT })
+          disposers.section = sp.section({ name: 'cyrene-eternal-page-remembrance:guide', order: 130, text: MEMORY_SECTION_TEXT })
         } catch (error) {
           promptLog(`section 注册失败 agent=${agentId} ${error instanceof Error ? error.message : String(error)}`)
         }
@@ -1475,8 +1489,8 @@ export function apply(ctx, rawConfig) {
   // ── 7) 设置面板 HTTP 路由（Client 插件用） ───────────────────────────────
   useService(ctx, 'webServer', (service) => {
     if (service === null || typeof service !== 'object' || typeof service.register !== 'function') return undefined
-    const dispose = service.register({ kind: 'prefix', path: '/cyrene-memory', handler: handleHttp })
-    log('info', '已注册 /cyrene-memory 状态/操作路由')
+    const dispose = service.register({ kind: 'prefix', path: '/cyrene-eternal-page-remembrance', handler: handleHttp })
+    log('info', '已注册 /cyrene-eternal-page-remembrance 状态/操作路由')
     return dispose
   }, log)
 

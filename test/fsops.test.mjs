@@ -8,7 +8,7 @@ import { ensureTree } from '../lib/store.js'
 import { fsOp } from '../lib/fsops.js'
 
 function tmpRoot() {
-  return join(mkdtempSync(join(tmpdir(), 'ope-fs-')), 'cyrene-memory')
+  return join(mkdtempSync(join(tmpdir(), 'ope-fs-')), 'cyrene-eternal-page-remembrance')
 }
 
 test('余页：可写/读/列/删，且不越界', () => {

@@ -4,12 +4,12 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync, readdirSync 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { snapshotRoot, listSnapshots, dirSize, snapshotsDir } from '../lib/backup.js'
+import { snapshotRoot, listSnapshots, dirSize, snapshotsDir, migrateSnapshotsDir } from '../lib/backup.js'
 import { ensureTree } from '../lib/store.js'
 
 function tmpRoot() {
   const base = mkdtempSync(join(tmpdir(), 'ope-backup-'))
-  return join(base, 'cyrene-memory')
+  return join(base, 'cyrene-eternal-page-remembrance')
 }
 
 test('快照：首次创建、同日幂等跳过、含日档内容', () => {
@@ -27,7 +27,7 @@ test('快照：首次创建、同日幂等跳过、含日档内容', () => {
     assert.equal(second.skipped, true)
     assert.deepEqual(listSnapshots(root), ['2026-10-18'])
     assert.ok(dirSize(root) > 0)
-    assert.ok(snapshotsDir(root).endsWith('cyrene-memory-snapshots'))
+    assert.ok(snapshotsDir(root).endsWith('cyrene-eternal-page-remembrance-snapshots'))
   } finally {
     rmSync(join(root, '..'), { recursive: true, force: true })
   }
@@ -64,3 +64,21 @@ test('快照：force 可覆盖当日快照（梦境后重做）', () => {
   }
 })
 
+
+test('快照目录迁移：旧 cyrene-memory-snapshots → 新目录', () => {
+  const base = mkdtempSync(join(tmpdir(), 'ope-snapmove-'));
+  try {
+    const root = join(base, 'cyrene-eternal-page-remembrance');
+    const legacy = join(base, 'cyrene-memory-snapshots');
+    mkdirSync(legacy, { recursive: true });
+    writeFileSync(join(legacy, '2026-10-18.txt'), 'old', 'utf8');
+    const moved = migrateSnapshotsDir(root);
+    assert.equal(moved.migrated, true);
+    assert.equal(existsSync(legacy), false);
+    assert.equal(existsSync(join(base, 'cyrene-eternal-page-remembrance-snapshots', '2026-10-18.txt')), true);
+    const again = migrateSnapshotsDir(root);
+    assert.equal(again.migrated, false);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});

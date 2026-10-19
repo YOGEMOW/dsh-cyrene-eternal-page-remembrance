@@ -1,6 +1,6 @@
 {
-  "name": "dsh-cyrene-memory",
-  "version": "0.4.4",
+  "name": "dsh-cyrene-eternal-page-remembrance",
+  "version": "0.5.0",
   "private": false,
   "type": "module",
   "description": "一页永恒：昔涟的长期记忆（四问锚点 + 日月年 + 艾宾浩斯 + 比例调度 + 夜梦 + 思源镜像 + 余页）",
@@ -16,12 +16,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOGEMOW/dsh-cyrene-memory.git"
+    "url": "git+https://github.com/YOGEMOW/dsh-cyrene-eternal-page-remembrance.git"
   },
   "bugs": {
-    "url": "https://github.com/YOGEMOW/dsh-cyrene-memory/issues"
+    "url": "https://github.com/YOGEMOW/dsh-cyrene-eternal-page-remembrance/issues"
   },
-  "homepage": "https://github.com/YOGEMOW/dsh-cyrene-memory#readme",
+  "homepage": "https://github.com/YOGEMOW/dsh-cyrene-eternal-page-remembrance#readme",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

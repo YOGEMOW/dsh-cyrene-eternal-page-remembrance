@@ -18,6 +18,7 @@ import {
   ensureTree,
   listDays,
   migrateFreeDir,
+  migrateRootDir,
   quotaUsage,
   readAnchor,
   readDay,
@@ -74,12 +75,12 @@ test('resolveRoot：configured 优先 / DSH_HOME / ~/.dsh 兜底', () => {
     assert.equal(resolveRoot('相对目录'), path.resolve('相对目录'));
 
     process.env.DSH_HOME = dir;
-    assert.equal(resolveRoot(), path.join(path.resolve(dir), 'cyrene-memory'));
-    assert.equal(resolveRoot(''), path.join(path.resolve(dir), 'cyrene-memory'));
+    assert.equal(resolveRoot(), path.join(path.resolve(dir), 'cyrene-eternal-page-remembrance'));
+    assert.equal(resolveRoot(''), path.join(path.resolve(dir), 'cyrene-eternal-page-remembrance'));
 
     delete process.env.DSH_HOME;
     const fallback = resolveRoot();
-    assert.equal(fallback, path.join(os.homedir(), '.dsh', 'cyrene-memory'));
+    assert.equal(fallback, path.join(os.homedir(), '.dsh', 'cyrene-eternal-page-remembrance'));
     assert.ok(path.isAbsolute(fallback));
   } finally {
     if (oldHome === undefined) delete process.env.DSH_HOME;
@@ -423,4 +424,23 @@ test('ensureTree：旧版种子文案（如我所书）自动刷新为余页', (
   assert.ok(welcome.includes('余页'));
   assert.equal(note.includes('如我所书'), false);
   assert.ok(note.includes('余页'));
+});
+
+test('migrateRootDir：旧 cyrene-memory → 新根目录，且不覆盖已存在的新目录', (t) => {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'ope-root-'));
+  try {
+    const target = path.join(base, 'cyrene-eternal-page-remembrance');
+    const legacy = path.join(base, 'cyrene-memory');
+    fs.mkdirSync(path.join(legacy, '日'), { recursive: true });
+    fs.writeFileSync(path.join(legacy, '日', '2026-10-18.md'), '# 旧\n', 'utf8');
+    const moved = migrateRootDir(target, { legacyNames: ['cyrene-memory'] });
+    assert.equal(moved.migrated, true);
+    assert.equal(fs.existsSync(legacy), false);
+    assert.equal(fs.readFileSync(path.join(target, '日', '2026-10-18.md'), 'utf8').includes('旧'), true);
+    // 再跑一次：新目录已存在，不迁移
+    const again = migrateRootDir(target, { legacyNames: ['cyrene-memory'] });
+    assert.equal(again.migrated, false);
+  } finally {
+    fs.rmSync(base, { recursive: true, force: true });
+  }
 });

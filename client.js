@@ -3,7 +3,7 @@
  *
  * 只做两件事：
  *  1. 在「设置」里加一个「一页永恒」分区：四问锚点、条目统计、配额、注入利用率、思源镜像状态；
- *  2. 提供「立即同步 / 立即备份 / 立即整理」三个按钮，走宿主侧 /cyrene-memory/action。
+ *  2. 提供「立即同步 / 立即备份 / 立即整理」三个按钮，走宿主侧 /cyrene-eternal-page-remembrance/action。
  *
  * 自注册 lazy factory 形态（DSH Client 插件契约）：
  *  - 不 import 任何 @deepseek-ai/dsh-client-* 包；React 从浏览器模块表 require。
@@ -13,12 +13,12 @@
 window.__ModuleLoader__.load({
   // 必须与 package.json 的包名一致：启动清单按包名生成 entry，
   // 写成宿主实例名会让加载器重跑 bundle，触发重复注册。
-  id: 'dsh-cyrene-memory',
+  id: 'dsh-cyrene-eternal-page-remembrance',
   factory(require) {
     const React = require('react')
     const h = React.createElement
 
-    const API = '/cyrene-memory'
+    const API = '/cyrene-eternal-page-remembrance'
 
     async function getStatus() {
       const res = await fetch(`${API}/status`, { headers: { accept: 'application/json' } })
@@ -151,7 +151,7 @@ window.__ModuleLoader__.load({
 
     /**
      * 会话头小徽标：只在昔涟预设的会话里出现。
-     * 宿主 /cyrene-memory/session 返回 preset；非 chat/cyrene-work 直接返回 null（不占位）。
+     * 宿主 /cyrene-eternal-page-remembrance/session 返回 preset；非 chat/cyrene-work 直接返回 null（不占位）。
      */
     const chipStyle = {
       padding: '2px 8px',
@@ -231,11 +231,11 @@ window.__ModuleLoader__.load({
         ctx.slots.inject('settings.section', () =>
           // label 是导航行显示文字：settings.section 的注册契约是 id + order + label，
           // 漏掉 label 会出现一条「只有图标、没有名字」的空导航（2026-10-18 用户截图指出）。
-          ctx.slots.register({ name: 'settings.section', id: 'cyrene-memory', order: 90, label: '一页永恒' }, Panel)
+          ctx.slots.register({ name: 'settings.section', id: 'cyrene-eternal-page-remembrance', order: 90, label: '一页永恒' }, Panel)
         )
         // 会话头小徽标（title-adjacent Session actions）：仅在昔涟会话内渲染。
         ctx.slots.inject('conversation.session.header.actions', () =>
-          ctx.slots.register({ name: 'conversation.session.header.actions', id: 'cyrene-memory', order: 15, label: '一页永恒' }, HeaderChip)
+          ctx.slots.register({ name: 'conversation.session.header.actions', id: 'cyrene-eternal-page-remembrance', order: 15, label: '一页永恒' }, HeaderChip)
         )
       }
     }

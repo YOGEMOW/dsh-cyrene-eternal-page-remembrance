@@ -8,7 +8,7 @@ import { ensureTree } from '../lib/store.js'
 import { rollMonthly, rollYearly, rollCalendars, buildMonthDoc } from '../lib/rolling.js'
 
 function tmpRoot() {
-  return join(mkdtempSync(join(tmpdir(), 'ope-roll-')), 'cyrene-memory')
+  return join(mkdtempSync(join(tmpdir(), 'ope-roll-')), 'cyrene-eternal-page-remembrance')
 }
 
 function entry(day, over = {}) {

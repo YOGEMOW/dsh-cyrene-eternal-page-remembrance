@@ -1,6 +1,6 @@
 # 一页永恒 · 模块契约（实现者必读）
 
-包：`dsh-cyrene-memory`（安装目录即本仓库根目录）。
+包：`dsh-cyrene-eternal-page-remembrance`（安装目录即本仓库根目录）。
 设计要点见 `README.md` 的技术附录；本文件是模块级契约（目录/格式/数据模型/调度）。
 运行环境：Node 22（ESM，`node:fs`/`node:path`/`node:crypto`，**零第三方依赖**）。测试：`node --test "test/*.test.mjs"`。
 
@@ -86,7 +86,7 @@ export function hashText(text)           // → 12 位 sha256 十六进制前缀
 ### lib/store.js
 
 ```js
-export function resolveRoot(configured)  // 绝对路径；空则 $DSH_HOME/cyrene-memory（无 DSH_HOME 用 ~/.dsh）
+export function resolveRoot(configured)  // 绝对路径；空则 $DSH_HOME/cyrene-eternal-page-remembrance（无 DSH_HOME 用 ~/.dsh）
 export function ensureTree(root)         // 建目录 + 缺省 指南.md（若 lib/guide.js 提供）+ 四问锚点占位
 export function atomicWrite(file, text)
 export function readTextSafe(file)       // 读不到 → ''

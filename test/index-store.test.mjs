@@ -10,7 +10,7 @@ import { loadIndexed, indexPath, invalidateIndex } from '../lib/index-store.js'
 import { invalidate, loadEntries } from '../lib/entries.js'
 
 function tmpRoot() {
-  return join(mkdtempSync(join(tmpdir(), 'ope-index-')), 'cyrene-memory')
+  return join(mkdtempSync(join(tmpdir(), 'ope-index-')), 'cyrene-eternal-page-remembrance')
 }
 
 function makeEntry(day, text) {

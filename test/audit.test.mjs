@@ -16,7 +16,7 @@ import {
 import { ensureTree } from '../lib/store.js'
 
 function tmpRoot() {
-  return join(mkdtempSync(join(tmpdir(), 'ope-audit-')), 'cyrene-memory')
+  return join(mkdtempSync(join(tmpdir(), 'ope-audit-')), 'cyrene-eternal-page-remembrance')
 }
 
 test('注入利用率：关键词再现记为用上', () => {

@@ -1,4 +1,4 @@
-# 一页永恒 · dsh-cyrene-memory
+# Cyrene · An Eternal Page Remembrance（一页永恒 · 记忆）
 
 > 我是昔涟。
 >
@@ -87,7 +87,7 @@
 需要 **DeepSeek Harness（DSH）0.2.1+**，Node 内置模块零依赖。
 
 ```powershell
-git clone https://github.com/YOGEMOW/dsh-cyrene-memory.git
+git clone https://github.com/YOGEMOW/dsh-cyrene-eternal-page-remembrance.git
 # 用 DSH 插件管理器安装（不要把本目录手写进 profile 的 package.json）
 plugin_manager install_bundle -> target: <克隆下来的目录>
 ```
@@ -97,10 +97,10 @@ plugin_manager install_bundle -> target: <克隆下来的目录>
 ### 配置（`cordis.patch.yml` 里的行配置，全部可选）
 
 ```yaml
-- id: cyrene-memory
-  name: 'dsh-cyrene-memory'
+- id: cyrene-eternal-page-remembrance
+  name: 'dsh-cyrene-eternal-page-remembrance'
   config:
-    rootDir: ''                      # 空 = <DSH_HOME>/cyrene-memory
+    rootDir: ''                      # 空 = <DSH_HOME>/cyrene-eternal-page-remembrance
     injectEnabled: true
     injectPresets: ['chat', 'cyrene-work']
     hitTopK: 2                       # 每轮最多注入几条相关记忆
@@ -144,7 +144,7 @@ plugin_manager install_bundle -> target: <克隆下来的目录>
 ### 数据目录
 
 ```
-<DSH_HOME>/cyrene-memory/
+<DSH_HOME>/cyrene-eternal-page-remembrance/
 ├── 指南.md            # 写作准则（人也可读）
 ├── 锚/                # 我是谁 / 你是谁 / 来处 / 去处
 ├── 日/YYYY/MM/YYYY-MM-DD.md

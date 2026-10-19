@@ -16,7 +16,7 @@ import {
 import { ensureTree } from '../lib/store.js'
 
 function tmpRoot() {
-  return join(mkdtempSync(join(tmpdir(), 'ope-restore-')), 'cyrene-memory')
+  return join(mkdtempSync(join(tmpdir(), 'ope-restore-')), 'cyrene-eternal-page-remembrance')
 }
 
 test('hpath → 日期 / 梦志日期', () => {

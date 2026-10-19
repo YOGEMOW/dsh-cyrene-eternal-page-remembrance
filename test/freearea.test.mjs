@@ -9,7 +9,7 @@ import { listFreeArea, planFreeSync, renderFreeContent, inNoSync, isFreeTextFile
 import { freeHPath } from '../lib/siyuan.js'
 
 function tmpRoot() {
-  return join(mkdtempSync(join(tmpdir(), 'ope-free-')), 'cyrene-memory')
+  return join(mkdtempSync(join(tmpdir(), 'ope-free-')), 'cyrene-eternal-page-remembrance')
 }
 
 test('余页镜像：列出文本文件，跳过 .nosync 与非文本', () => {

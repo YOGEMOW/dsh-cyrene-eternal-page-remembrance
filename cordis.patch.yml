@@ -1,11 +1,11 @@
-# 一页永恒（dsh-cyrene-memory）的 bundle 入口。
+# 一页永恒（dsh-cyrene-eternal-page-remembrance）的 bundle 入口。
 # 只插入一行 Host 插件；配置项全部可选，缺省值见 lib/config.js 与 lib/siyuan.js。
 - insert:
-    - id: cyrene-memory
-      name: 'dsh-cyrene-memory'
+    - id: cyrene-eternal-page-remembrance
+      name: 'dsh-cyrene-eternal-page-remembrance'
       config:
         enabled: true
-        rootDir: ''                      # 空 = <DSH_HOME>/cyrene-memory
+        rootDir: ''                      # 空 = <DSH_HOME>/cyrene-eternal-page-remembrance
         injectEnabled: true
         injectPresets: ['chat', 'cyrene-work']
         injectAll: false                 # 仅调试：true 时所有会话都注入
