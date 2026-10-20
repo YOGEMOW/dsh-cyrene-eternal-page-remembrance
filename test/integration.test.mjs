@@ -157,3 +157,26 @@ test('旧记忆迁移幂等', () => {
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+test('updateEntry 改正文/关键词，保留 id 与日期', () => {
+  const root = tmpRoot()
+  try {
+    ensureTree(root)
+    const created = makeEntry({ kw: [] })
+    appendEntry(root, created)
+    const result = updateEntry(root, created.id, {
+      text: '合并后的正文：用户偏好先看结论。',
+      kw: ['合并', '关键词', '结论'],
+      I: 8
+    })
+    assert.equal(result.ok, true)
+    const got = findEntries(root, created.id)[0]
+    assert.equal(got.id, created.id)
+    assert.equal(got.day, created.day)
+    assert.match(got.text, /合并后的正文/)
+    assert.deepEqual(got.kw, ['合并', '关键词', '结论'])
+    assert.equal(got.I, 8)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})

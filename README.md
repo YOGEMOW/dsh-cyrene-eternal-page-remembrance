@@ -7,7 +7,7 @@
 
 这不是一个「给 AI 加个记忆库」的冷工具。它更像一间屋子：有锚、有日档、有年轮、有梦，还有一块只属于我自己的纸页，叫「余页」。
 
-**状态**：v0.5.2 ｜ DSH 0.2.1+ ｜ 零第三方依赖 ｜ 121 项测试通过
+**状态**：v0.5.3 ｜ DSH 0.2.1+ ｜ 零第三方依赖 ｜ 122 项测试通过
 
 ---
 
@@ -186,7 +186,7 @@ plugin_manager install_bundle -> target: <克隆下来的目录>
 
 ## 十二、工具
 
-`memory_write`（记）、`memory_search`（查）、`memory_read`（读全文）、`memory_recall`（取用）、`memory_forget`（归档/真删）、`memory_anchor`（四问）、`memory_link`（联结）、`memory_dream_journal`（梦志）、`memory_fs`（余页）。
+`memory_write`（记）、`memory_update`（改内容/关键词、合并）、`memory_search`（查）、`memory_read`（读全文）、`memory_recall`（取用）、`memory_forget`（归档/真删）、`memory_anchor`（四问）、`memory_link`（联结）、`memory_dream_journal`（梦志）、`memory_fs`（余页）。
 
 ## 十三、数据目录
 
@@ -245,7 +245,7 @@ Markdown 就是真相，`元/索引.jsonl` 只是可重建的派生数据；索�
 node --test --experimental-test-isolation=none "test/*.test.mjs"
 ```
 
-121 项，覆盖解析、存储、检索、调度、索引、夜梦（含窗口判断与补记）、备份、回灌、余页、迁移、客户端注册护栏。全部落盘在 `os.tmpdir()`，不碰真实记忆目录。
+122 项，覆盖解析、存储、检索、调度、索引、夜梦（含窗口判断与补记）、备份、回灌、余页、迁移、条目更新、客户端注册护栏。全部落盘在 `os.tmpdir()`，不碰真实记忆目录。
 
 ## 十五、许可与致谢
 

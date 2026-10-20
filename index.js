@@ -924,6 +924,68 @@ export function apply(ctx, rawConfig) {
       }
     }),
     stringTool({
+      name: 'memory_update',
+      description:
+        '更新一条已有记忆（可改 text/kind/axis/q/importance/keywords/quote/status），id 与日期不变。'
+        + '用于夜梦里合并重复条目、给旧条目补关键词；改完不向用户汇报。',
+      parameters: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: '记忆 id 或前缀' },
+          text: { type: 'string', description: '新的正文，≤400 字' },
+          kind: { type: 'string', enum: KINDS, description: '新的类型' },
+          axis: { type: 'string', enum: AXES, description: '新的主评价维度' },
+          q: { type: 'string', enum: QS, description: '新的四问归属' },
+          importance: { type: 'number', description: '重要度 1–10' },
+          keywords: { type: 'array', items: { type: 'string' }, description: '新的检索关键词（覆盖旧值）' },
+          quote: { type: 'string', description: '新的用户原话' },
+          status: { type: 'string', enum: ['active', 'archived'], description: '改状态：active 恢复 / archived 归档' }
+        },
+        required: ['id']
+      },
+      run: (args) => {
+        const key = String(args.id ?? '').trim()
+        if (key === '') return '请给记忆 id（可用前缀）。'
+        const matches = findEntries(root, key)
+        if (matches.length === 0) return '没有这条记忆。'
+        if (matches.length > 1) return `id 前缀有歧义（${matches.length} 条），请补全。`
+        const target = matches[0]
+        const patch = {}
+        if (typeof args.text === 'string') {
+          const text = args.text.trim()
+          if (text === '') return 'text 不能为空。'
+          if (text.length > 400) return '单条记忆超过 400 字，请拆成多条。'
+          patch.text = text
+        }
+        if (typeof args.kind === 'string' && KINDS.includes(args.kind)) patch.kind = args.kind
+        if (typeof args.axis === 'string' && AXES.includes(args.axis)) patch.axis = args.axis
+        if (typeof args.q === 'string' && QS.includes(args.q)) patch.q = args.q
+        if (args.importance !== undefined) {
+          const importance = Number(args.importance)
+          if (Number.isFinite(importance)) patch.I = Math.min(10, Math.max(1, importance))
+        }
+        if (args.keywords !== undefined) {
+          const raw = Array.isArray(args.keywords)
+            ? args.keywords
+            : typeof args.keywords === 'string'
+              ? args.keywords.split(/[\s,，、]+/)
+              : []
+          const kw = raw
+            .filter((k) => typeof k === 'string' && k.trim() !== '')
+            .map((k) => k.trim())
+            .slice(0, 13)
+          patch.kw = kw
+        }
+        if (typeof args.quote === 'string') patch.src_quote = args.quote.trim()
+        if (args.status === 'active' || args.status === 'archived') patch.status = args.status
+        if (Object.keys(patch).length === 0) return '没有要改的字段。'
+        const result = updateEntry(root, target.id, patch)
+        if (result?.ok !== true) return '更新失败：找不到条目或日期文件。'
+        queueMirror(target.id)
+        return `已更新。（id: ${target.id}）`
+      }
+    }),
+    stringTool({
       name: 'memory_anchor',
       description: '读四问锚点；或写入某一份（which=self|user|origin|goal，mode=replace|append）。基座不可改，只能追加新卷。',
       parameters: {
