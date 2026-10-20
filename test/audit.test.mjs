@@ -93,3 +93,18 @@ test('锚点限额：24h 内重复改同一份被拒，7 天后放行', () => {
     rmSync(join(root, '..'), { recursive: true, force: true })
   }
 })
+
+test('锚点限额按自然日：23:35 改过，次日 23:30（相隔 23h55m）仍允许', () => {
+  const root = tmpRoot()
+  try {
+    ensureTree(root)
+    const t1 = Date.UTC(2026, 9, 19, 15, 35, 0) // 2026-10-19 23:35 +08
+    recordAnchorChange(root, 'user', t1)
+    assert.equal(anchorChangeAllowed(root, 'user', t1 + 10 * 60_000, { timeZone: 'Asia/Shanghai' }).ok, false)
+    const t2 = Date.UTC(2026, 9, 20, 15, 30, 0) // 2026-10-20 23:30 +08
+    assert.equal(t2 - t1, 23 * 60 * 60_000 + 55 * 60_000)
+    assert.equal(anchorChangeAllowed(root, 'user', t2, { timeZone: 'Asia/Shanghai' }).ok, true)
+  } finally {
+    rmSync(join(root, '..'), { recursive: true, force: true })
+  }
+})

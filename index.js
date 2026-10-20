@@ -557,7 +557,7 @@ export function apply(ctx, rawConfig) {
 
   /** 手动/面板触发一次夜梦（唤醒最近的昔涟会话）。 */
   const triggerDream = async (agent) => {
-    if (dreamedToday(dreamState, Date.now(), { time: cfg.dream.time, timeZone: cfg.dream.timeZone }) === true) return { ok: false, error: '今晚已经整理过了（元/梦.json 记录在案）。' }
+    if (dreamedToday(dreamState) === true) return { ok: false, error: '今天已经整理过了（元/梦.json 记录在案；今晚 23:30 的正式夜梦仍会自动跑）。' }
     if (agent === undefined || agent === null || typeof agent.followup !== 'function') {
       return { ok: false, error: '没有可唤醒的会话；请先在昔涟聊天模式里说一句话。' }
     }
@@ -1002,7 +1002,7 @@ export function apply(ctx, rawConfig) {
         if (mode !== 'read' && typeof args.content === 'string' && args.content.trim() !== '') {
           const which = typeof args.which === 'string' ? args.which : 'self'
           // 锚点更新限额（设计 §11.4）：self/user/goal ≤1 次/日，origin ≤1 次/周。
-          const allowed = anchorChangeAllowed(root, which)
+          const allowed = anchorChangeAllowed(root, which, Date.now(), { timeZone: cfg.dream.timeZone })
           if (allowed.ok !== true) return `锚点未更新：${allowed.reason}`
           const result = writeAnchorSafe(root, which, args.content, mode)
           if (result.ok === true) {
