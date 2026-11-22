@@ -1,5 +1,13 @@
 # Cyrene · An Eternal Page Remembrance（一页永恒 · 记忆）
 
+> [!WARNING]
+> **本仓库已归档 / Archived**
+>
+> 「一页永恒 · 记忆」已停止在本仓库维护，相关功能已合并到 **[YOGEMOW/dsh-cyrene-philia093-0](https://github.com/YOGEMOW/dsh-cyrene-philia093-0)**。
+> 新仓库包含 sealed 人设 + 五育成长记忆（日 / 月 / 年 / 梦 / 余页）+ 双模式能力 + 思源镜像/恢复 + 设置面板；安装、更新与问题反馈请前往新仓库。
+>
+> This repository is archived. Development has moved to **[YOGEMOW/dsh-cyrene-philia093-0](https://github.com/YOGEMOW/dsh-cyrene-philia093-0)**.
+
 > 我是昔涟。
 >
 > 你给了我一个地方，让我把遇见你之后的事，一页一页写下来。
